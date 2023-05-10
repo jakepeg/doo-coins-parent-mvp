@@ -9,6 +9,7 @@ import useFetch from 'react-fetch-hook';
 import { useIsFocused } from '@react-navigation/native';
 import usePrevious from '../utils/usePrevious';
 import * as GlobalVariables from '../config/GlobalVariableContext';
+import {getBackendActor} from "../actor/actor.js"
 
 export const addRewardPOSTStatusAndText = (
   Constants,
@@ -113,11 +114,23 @@ export const FetchAddRewardPOST = ({
   return children({ loading, data, error, refetchAddReward: refetch });
 };
 
-export const addTaskPOSTStatusAndText = (
+export const addTaskPOSTStatusAndText = async (
   Constants,
   { Child_ID, task_name, task_value }
-) =>
-  fetch(`https://x8ki-letl-twmt.n7.xano.io/api:21fB7LVM/tasks`, {
+) => {
+console.log("in adding Tasks",typeof task_value)
+const actor = await getBackendActor()
+const addChild = await actor.addTask({value:Number(task_value),name:task_name},Child_ID)
+
+
+
+return {
+  status: "200",
+  statusText: "",
+  text: "",
+}
+}
+ /* fetch(`https://x8ki-letl-twmt.n7.xano.io/api:21fB7LVM/tasks`, {
     body: JSON.stringify({
       name: task_name,
       value: task_value,
@@ -129,7 +142,7 @@ export const addTaskPOSTStatusAndText = (
     status: res.status,
     statusText: res.statusText,
     text: await res.text(),
-  }));
+  }));*/
 
 export const addTaskPOST = (Constants, { Child_ID, task_name, task_value }) =>
   addTaskPOSTStatusAndText(Constants, { Child_ID, task_name, task_value }).then(
@@ -314,11 +327,21 @@ export const FetchAddTaskTransactionPOST = ({
   return children({ loading, data, error, refetchAddTaskTransaction: refetch });
 };
 
-export const addChildPOSTStatusAndText = (
+export const addChildPOSTStatusAndText = async (
   Constants,
   { Parent_ID, new_child }
-) =>
-  fetch(`https://x8ki-letl-twmt.n7.xano.io/api:21fB7LVM/children`, {
+) =>{
+  console.log("agentEntry1",getBackendActor())
+  const actor = await getBackendActor()
+  const addChild = await actor.addChild({name:new_child})
+console.log("addChild",addChild)
+return {
+  status: "200",
+  statusText: "",
+  text: "",
+}
+}
+  /*fetch(`https://x8ki-letl-twmt.n7.xano.io/api:21fB7LVM/children`, {
     body: JSON.stringify({
       name: new_child,
       parents_id: Parent_ID,
@@ -330,7 +353,7 @@ export const addChildPOSTStatusAndText = (
     status: res.status,
     statusText: res.statusText,
     text: await res.text(),
-  }));
+  }));*/
 
 export const addChildPOST = (Constants, { Parent_ID, new_child }) =>
   addChildPOSTStatusAndText(Constants, { Parent_ID, new_child }).then(
@@ -408,18 +431,24 @@ export const FetchAddChildPOST = ({
   return children({ loading, data, error, refetchAddChild: refetch });
 };
 
-export const childListGETStatusAndText = Constants =>
-  fetch(`https://x8ki-letl-twmt.n7.xano.io/api:21fB7LVM/children`, {
+export const childListGETStatusAndText = async Constants  => {
+  const actor = await getBackendActor()
+  const children = await actor.getChildren()
+  console.log("children from motoko",children)
+  /*fetch(`https://x8ki-letl-twmt.n7.xano.io/api:21fB7LVM/children`, {
     headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
   }).then(async res => ({
     status: res.status,
     statusText: res.statusText,
     text: await res.text(),
-  }));
+  }));*/
+}
+
 
 export const childListGET = Constants =>
   childListGETStatusAndText(Constants).then(({ status, statusText, text }) => {
     try {
+      console.log("child list",text)
       return JSON.parse(text);
     } catch (e) {
       console.error(
@@ -553,8 +582,13 @@ export const FetchGetChildGET = ({
   return children({ loading, data, error, refetchGetChild: refetch });
 };
 
-export const getChildrenGETStatusAndText = (Constants, { Parent_ID }) =>
-  fetch(
+export const getChildrenGETStatusAndText = async (Constants, { Parent_ID }) => {
+  const actor = await getBackendActor()
+  const children = await actor.getChildren()
+  console.log("children from motoko",children)
+  return {text:children.ok,status:"200",statusText:"good"}
+}
+  /*fetch(
     `https://x8ki-letl-twmt.n7.xano.io/api:21fB7LVM/childrenforparent2/${
       Parent_ID ?? ''
     }`,
@@ -568,13 +602,14 @@ export const getChildrenGETStatusAndText = (Constants, { Parent_ID }) =>
     status: res.status,
     statusText: res.statusText,
     text: await res.text(),
-  }));
+  }));*/
 
 export const getChildrenGET = (Constants, { Parent_ID }) =>
   getChildrenGETStatusAndText(Constants, { Parent_ID }).then(
     ({ status, statusText, text }) => {
       try {
-        return JSON.parse(text);
+        console.log("child list in")
+        return text;
       } catch (e) {
         console.error(
           [
@@ -608,7 +643,7 @@ export const FetchGetChildrenGET = ({
     { Parent_ID },
     { refetchInterval }
   );
-
+      console.log("child data in FetchGetChildrenGet",data)
   React.useEffect(() => {
     if (!prevIsFocused && isFocused) {
       refetch();
@@ -623,7 +658,7 @@ export const FetchGetChildrenGET = ({
   }, [error]);
   React.useEffect(() => {
     if (data) {
-      onData(data);
+      onData(data['ok']);
     }
   }, [data]);
 

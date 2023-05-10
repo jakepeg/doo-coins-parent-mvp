@@ -130,7 +130,7 @@ const ChildlistScreen = props => {
       <View>
         <DooCoinsAPIApi.FetchGetChildrenGET Parent_ID={Constants['Parent_ID']}>
           {({ loading, error, data, refetchGetChildren }) => {
-            const fetchData = data;
+            const fetchData = data
             if (!fetchData || loading) {
               return <ActivityIndicator />;
             }
@@ -157,6 +157,7 @@ const ChildlistScreen = props => {
                   }
                   renderItem={({ item }) => {
                     const listData = item;
+                    console.log("items in flatLst",item)
                     return (
                       <Touchable
                         onPress={() => {
@@ -224,7 +225,7 @@ const ChildlistScreen = props => {
                               dimensions.width
                             )}
                           >
-                            {listData?.balance}
+                            {Number(listData?.balance)}
                           </Text>
                         </View>
                       </Touchable>

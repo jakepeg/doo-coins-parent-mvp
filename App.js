@@ -1,6 +1,10 @@
 import * as React from 'react';
 import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
+import * as encoding from 'text-encoding';
+import 'react-native-url-polyfill/auto';
+
+
 import {
   SafeAreaProvider,
   initialWindowMetrics,
